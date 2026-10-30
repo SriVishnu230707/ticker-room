@@ -50,6 +50,9 @@ export default function Dashboard({ stocks, onOpen }) {
         };
 
   const visibleStocks = selectedSector === "All" ? ranked : activeSectorSummary.stocks;
+  const risingCount = stocks.filter((stock) => stock.change > 0).length;
+  const breadth = stocks.length ? Math.round((risingCount / stocks.length) * 100) : 0;
+  const leadMover = ranked[0];
 
   return (
     <div>
@@ -57,6 +60,29 @@ export default function Dashboard({ stocks, onOpen }) {
         title="Market Overview"
         sub="Real-time stock price streaming and market movements • Updated every 1.5s"
       />
+
+      <section className="market-hero" aria-label="Live market pulse">
+        <div className="market-hero-copy">
+          <div className="market-hero-kicker"><span className="market-live-dot" /> MARKET PULSE · SIMULATED FEED</div>
+          <h2>Markets, <em>in motion.</em></h2>
+          <p>Follow every tick, spot the movers, and test your ideas with a paper portfolio.</p>
+          <div className="market-hero-chips"><span>{stocks.length} equities tracked</span><span>{risingCount} currently rising</span></div>
+        </div>
+        <div className="market-pulse-card">
+          <div className="market-pulse-top"><span>MARKET BREADTH</span><strong>{breadth}% rising</strong></div>
+          <div className="market-breadth-track"><div style={{ width: `${breadth}%` }} /></div>
+          <div className="market-pulse-feature">
+            <span>LEADING MOVER</span>
+            <strong>{leadMover ? leadMover.symbol : "Waiting for prices"}</strong>
+            <b style={{ color: leadMover?.change >= 0 ? COLORS.gain : COLORS.loss }}>
+              {leadMover ? `${leadMover.change >= 0 ? "+" : ""}${leadMover.change.toFixed(2)}%` : "—"}
+            </b>
+          </div>
+          <div className="market-mini-tape" aria-hidden="true">
+            {ranked.slice(0, 4).map((stock) => <span key={stock.symbol}>{stock.symbol} <b>{stock.change >= 0 ? "+" : ""}{stock.change.toFixed(2)}%</b></span>)}
+          </div>
+        </div>
+      </section>
 
       <div style={styles.indexStrip}>
         <IndexTicker label="Market Composite" value={marketAvg.value} change={marketAvg.change} />
@@ -158,3 +184,4 @@ export default function Dashboard({ stocks, onOpen }) {
     </div>
   );
 }
+
